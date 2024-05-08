@@ -3,15 +3,27 @@ services:
     build:
       dockerfile: extensions
     volumes:
-      - './src:/var/www/html'
+      - './:/var/www/html'
 
   nginx:
     image: nginx:latest
     ports:
       - 80:80
     volumes:
-      - './src:/var/www/html'
+      - './:/var/www/html'
       - './docker/nginx/conf.d:/etc/nginx/conf.d'
+
+  composer:
+    image: composer
+    network_mode: bridge
+    volumes:
+      - './:/var/www/html'
+    working_dir: '/var/www/html'
+    entrypoint:
+      - composer
+      - install
+    depends_on:
+      - php
 
   db:
     image: mysql:8
@@ -19,8 +31,8 @@ services:
       - "33061:3306"
     command: --default-authentication-plugin=mysql_native_password
     restart: always
-    volumes:
-      - ./init:/docker-entrypoint-initdb.d
+#    volumes:
+#      - ./init:/docker-entrypoint-initdb.d
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: sk_test
