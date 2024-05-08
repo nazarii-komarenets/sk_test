@@ -1,0 +1,34 @@
+services:
+  php:
+    build:
+      dockerfile: extensions
+    volumes:
+      - './src:/var/www/html'
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - 80:80
+    volumes:
+      - './src:/var/www/html'
+      - './docker/nginx/conf.d:/etc/nginx/conf.d'
+
+  db:
+    image: mysql:8
+    ports:
+      - "33061:3306"
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: sk_test
+      MYSQL_USER: sk_test
+      MYSQL_PASSWORD: 123456
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8081:8080"
